@@ -1,0 +1,28 @@
+{
+  "name": "solbianca/yii2-fias",
+  "description": "Fias base for your site",
+  "type": "yii2-extension",
+  "keywords": [
+    "yii2",
+    "extension",
+    "module",
+    "fias",
+    "address autocomplete"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "SolBianca",
+      "email": "neivweb@gmail.com"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "*",
+    "yiisoft/yii2-jui": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "solbianca\\fias\\": ""
+    }
+  }
+}
