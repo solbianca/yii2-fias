@@ -23,7 +23,6 @@ class FiasController extends Controller
      */
     public function actionInstall($file = null)
     {
-
         $loader = $this->getLoader();
 
         return (new ImportModel($loader, $file))->run();

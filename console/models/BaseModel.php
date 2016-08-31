@@ -8,8 +8,8 @@
 namespace solbianca\fias\console\models;
 
 use Yii;
-use app\base\Model;
 use solbianca\fias\console\base\Loader;
+use yii\base\Model;
 use yii\console\Exception;
 use solbianca\fias\models\FiasUpdateLog;
 

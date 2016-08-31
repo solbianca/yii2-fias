@@ -29,7 +29,7 @@
 -------------------
 Установить модуль с помощью композера:
 ````
-    composer require solbianca/yii2-fias
+    composer require solbianca/yii2-fias "dev-master"
 ````
 
  Применить миграции:
@@ -45,7 +45,7 @@
     'modules' => [
         ....
             'fias' => [
-                'class' => 'app\modules\fias\Module',
+                'class' => 'solbianca\fias\Module',
             ],
         ....
     ],
@@ -56,7 +56,7 @@
 ````
 'controllerMap' => [
     'fias' => [
-        'class' => 'app\modules\fias\console\controllers\FiasController'
+        'class' => 'solbianca\fias\console\controllers\FiasController'
     ]
 ],
 ````
@@ -68,7 +68,7 @@
     'modules' => [
         ....
             'fias' => [
-                'class' => 'app\modules\fias\Module',
+                'class' => '\path\to\Module',
                 'directory' => path/to/directory
             ],
         ....
