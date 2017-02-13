@@ -106,7 +106,11 @@ $this->registerJs($js);
         <label for="form-region">Регион</label>
         <?= Html::dropDownList('region', 77, $regions, ['class' => 'form-control', 'if' => 'form-region']) ?>
     </div>
-
+    <div class="form-group">
+        <label for="form-city">Город</label>
+        <?= Html::textInput('city', null, ['class' => 'form-control address-form', 'id' => 'form-city']) ?>
+        <?= Html::hiddenInput('address_id', null, ['id' => 'form-city-id']) ?>
+    </div>
     <div class="form-group">
         <label for="form-street">Улица</label>
         <?= Html::textInput('street', null, ['class' => 'form-control address-form', 'id' => 'form-street']) ?>
