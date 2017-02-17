@@ -77,7 +77,7 @@ class SearchAddress extends Model
             case 'city':
             case 'street':
                 $dataProvider = $this->searchAddressObject(Yii::$app->request->post(), $find);
-
+                $dataProvider->pagination->setPage(Yii::$app->request->post('page') -1);
                 $addresses = ArrayHelper::toArray($dataProvider->getModels(), [
                     'solbianca\fias\models\FiasAddressObject' => [
                         'id' => 'address_id',
@@ -87,6 +87,7 @@ class SearchAddress extends Model
                 break;
             case 'house':
                 $dataProvider = $this->searchHouse(Yii::$app->request->post());
+                $dataProvider->pagination->setPage(Yii::$app->request->post('page')  -1);
                 /** @var solbianca\fias\models\FiasHouse $addresses */
                 $addresses = ArrayHelper::toArray($dataProvider->getModels(), [
                     'solbianca\fias\models\FiasHouse' => [
@@ -100,7 +101,7 @@ class SearchAddress extends Model
 
         echo Json::encode([
             'data' => $addresses,
-            'page' => $dataProvider->pagination->page,
+            'page' => $dataProvider->pagination->page + 1,
             'total' => $dataProvider->pagination->pageCount
         ]);
         Yii::$app->end();
