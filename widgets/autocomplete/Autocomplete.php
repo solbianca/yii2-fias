@@ -33,7 +33,8 @@ class Autocomplete extends Widget
             [
                 'urlAddressObject' => $this->urlAddressObject,
                 'urlHouse' => $this->urlHouse,
-                'regions' => $this->getRegions()
+                'regions' => $this->getRegions(),
+                'widget' => $this,
             ]
         );
     }
