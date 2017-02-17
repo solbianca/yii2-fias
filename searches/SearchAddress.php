@@ -191,7 +191,9 @@ class SearchAddress extends Model
             $query->andWhere(['fias_house.address_id' => $this->parent_id]);
         }
 
-        $query->andWhere(FiasHouse::tableName() . '.number like \'' .  intval($this->query) . '%\'');
+        if($this->query){
+            $query->andWhere(FiasHouse::tableName() . '.number like \'' .  intval($this->query) . '%\'');
+        }
 
         $query->groupBy('house_id');
 
