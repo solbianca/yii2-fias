@@ -1,11 +1,12 @@
 <?php
 
-use yii\helpers\Html;
+    use yii\helpers\Html;
 
-/**
- * @var $this yii\web\View
- * @var $regions \solbianca\fias\models\FiasRegion[]
- */
+    /**
+     * @var $this yii\web\View
+     * @var $regions \solbianca\fias\models\FiasRegion[]
+     * @var $widget \solbianca\fias\widgets\autocomplete\Autocomplete
+     */
 
     $ajaxDropdownLocal = [
         'allRecords'        => 'Все записи',
@@ -16,6 +17,16 @@ use yii\helpers\Html;
         'previous'          => 'пред.',
         'recordsContaining' => 'Records containing',
     ];
+
+    $region = '';
+    $city = $street = $house = [];
+    $house = [];
+    if($address){
+        $region = $address['city']->region_code;
+        $city = [['id' => $address['city']->address_id, 'value' => $address['city']->getFullAddress(), 'mark' => 1]];
+        $street = [['id' => $address['street']->address_id, 'value' => $address['street']->getFullAddress(), 'mark' => 1]];
+        $house = [['id' => $address['house']->house_id, 'value' => $address['house']->number, 'mark' => 1]];
+    }
 ?>
 
 <div id="form-address-<?= $widget->id ?>">
@@ -28,7 +39,8 @@ use yii\helpers\Html;
                 'name' => 'region',
                 'id' => 'region',
                 'data' => $regions,
-                'options' => ['placeholder' => 'Выберите регион...'],
+                'value' => $region,
+                'options' => ['placeholder' => 'Выберите регион...', 'onChange' => "$('#city_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
@@ -48,7 +60,10 @@ use yii\helpers\Html;
                 'delay' => 2000,
                 'minQuery' => 4,
                 'getAdditionalPostData' => '[{find:"city", region:$("select[name=region]").val()}]',
-                'local' => $ajaxDropdownLocal
+                'local' => $ajaxDropdownLocal,
+                'data' => $city,
+                'onSelect' => "$('#street_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
+                'onRemove' => "$('#street_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
             ]);
         ?>
     </div>
@@ -65,7 +80,10 @@ use yii\helpers\Html;
                 'delay' => 2000,
                 'minQuery' => 4,
                 'getAdditionalPostData' => '[{find:"street", region:$("select[name=region]").val(), city_id:$("input[name=city]").val()}]',
-                'local' => $ajaxDropdownLocal
+                'local' => $ajaxDropdownLocal,
+                'data' => $street,
+                'onSelect' => "$('#" . Html::getInputId($widget->model,$widget->attribute) . '_ajaxDropDownWidget' . " .ajaxDropDownSingleRemove').click();",
+                'onRemove' => "$('#" . Html::getInputId($widget->model,$widget->attribute) . '_ajaxDropDownWidget' . " .ajaxDropDownSingleRemove').click();",
             ]);
         ?>
     </div>
@@ -74,7 +92,8 @@ use yii\helpers\Html;
         <?php
             echo \bizley\ajaxdropdown\AjaxDropdown::widget([
                 'id' => 'house_input',
-                'name' => 'house',
+                'model' => $widget->model,
+                'attribute' => $widget->attribute,
                 'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
                 'singleMode' => true,
                 'keyTrigger' => true,
@@ -82,7 +101,9 @@ use yii\helpers\Html;
                 'delay' => 2000,
                 'minQuery' => 1,
                 'getAdditionalPostData' => '[{find:"house", region:$("select[name=region]").val(), city_id:$("input[name=city]").val(), street_id:$("input[name=street]").val()}]',
-                'local' => $ajaxDropdownLocal
+                'local' => $ajaxDropdownLocal,
+                'data' => $house,
+                //                'onSelect' => 'alert("house")',
             ]);
         ?>
     </div>

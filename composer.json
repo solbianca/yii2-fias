@@ -18,7 +18,9 @@
   ],
   "require": {
     "yiisoft/yii2": "*",
-    "yiisoft/yii2-jui": "^2.0"
+    "yiisoft/yii2-jui": "^2.0",
+    "bizley/ajaxdropdown": "*",
+    "kartik-v/yii2-widget-select2": "@dev"
   },
   "autoload": {
     "psr-4": {
