@@ -87,9 +87,6 @@ class SearchAddress extends Model
                 ]);
                 break;
             case 'house':
-                if(!Yii::$app->request->post('street_id')){
-                    break;
-                }
                 $dataProvider = $this->searchHouse(Yii::$app->request->post());
                 $dataProvider->pagination->setPage(Yii::$app->request->post('page')  -1);
                 /** @var solbianca\fias\models\FiasHouse $addresses */
