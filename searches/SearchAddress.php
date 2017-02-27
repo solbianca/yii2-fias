@@ -183,8 +183,11 @@ class SearchAddress extends Model
         if($this->city_id){
             $this->parent_id = $this->city_id;
         }
-        if($this->street_id){
+
+        if ($this->street_id){
             $this->parent_id = $this->street_id;
+        } else {
+            $query->where('0 = 1');
         }
 
         if($this->parent_id){
