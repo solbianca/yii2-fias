@@ -40,7 +40,7 @@
                 'id' => 'region_' . $widget->id,
                 'data' => $regions,
                 'value' => $region,
-                'options' => ['placeholder' => 'Выберите регион...', 'onChange' => "$('#city_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",],
+                'options' => ['placeholder' => 'Выберите регион...', 'onChange' => "$('#city_" . $widget->id . "_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],
@@ -62,8 +62,8 @@
                 'getAdditionalPostData' => '[{find:"city", region:$("select[id=region_' . $widget->id . ']").val()}]',
                 'local' => $ajaxDropdownLocal,
                 'data' => $city,
-                'onSelect' => "$('#street_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
-                'onRemove' => "$('#street_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
+                'onSelect' => "$('#street_" . $widget->id . "_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
+                'onRemove' => "$('#street_" . $widget->id . "_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
                 'inputOptions' => [
                     'autocorrect' => 'off',
                     'autocapitalize' => 'off',
