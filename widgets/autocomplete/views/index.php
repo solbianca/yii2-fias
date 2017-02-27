@@ -37,7 +37,7 @@
             echo \kartik\widgets\Select2::widget([
                 'language' => 'ru',
                 'name' => 'region',
-                'id' => 'region',
+                'id' => 'region_' . $widget->id,
                 'data' => $regions,
                 'value' => $region,
                 'options' => ['placeholder' => 'Выберите регион...', 'onChange' => "$('#city_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",],
@@ -51,19 +51,24 @@
         <label for="form-city">Город</label>
         <?php
             echo \bizley\ajaxdropdown\AjaxDropdown::widget([
-                'id' => 'city_input',
-                'name' => 'city',
+                'id' => 'city_input' . $widget->id,
+                'name' => 'city_' . $widget->id,
                 'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
                 'singleMode' => true,
                 'keyTrigger' => true,
                 'buttonsClass' => 'btn-default',
                 'delay' => 2000,
                 'minQuery' => 4,
-                'getAdditionalPostData' => '[{find:"city", region:$("select[name=region]").val()}]',
+                'getAdditionalPostData' => '[{find:"city", region:$("select[id=region_' . $widget->id . ']").val()}]',
                 'local' => $ajaxDropdownLocal,
                 'data' => $city,
                 'onSelect' => "$('#street_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
                 'onRemove' => "$('#street_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
+                'inputOptions' => [
+                    'autocorrect' => 'off',
+                    'autocapitalize' => 'off',
+                    'autocomplete' => 'off',
+                ],
             ]);
         ?>
     </div>
@@ -71,19 +76,24 @@
         <label for="form-street">Улица</label>
         <?php
             echo \bizley\ajaxdropdown\AjaxDropdown::widget([
-                'id' => 'street_input',
-                'name' => 'street',
+                'id' => 'street_input' . $widget->id,
+                'name' => 'street_' . $widget->id,
                 'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
                 'singleMode' => true,
                 'keyTrigger' => true,
                 'buttonsClass' => 'btn-default',
                 'delay' => 2000,
                 'minQuery' => 4,
-                'getAdditionalPostData' => '[{find:"street", region:$("select[name=region]").val(), city_id:$("input[name=city]").val()}]',
+                'getAdditionalPostData' => '[{find:"street", region:$("select[name=region_' . $widget->id . ']").val(), city_id:$("input[name=city_' . $widget->id . ']").val()}]',
                 'local' => $ajaxDropdownLocal,
                 'data' => $street,
                 'onSelect' => "$('#" . Html::getInputId($widget->model,$widget->attribute) . '_ajaxDropDownWidget' . " .ajaxDropDownSingleRemove').click();",
                 'onRemove' => "$('#" . Html::getInputId($widget->model,$widget->attribute) . '_ajaxDropDownWidget' . " .ajaxDropDownSingleRemove').click();",
+                'inputOptions' => [
+                    'autocorrect' => 'off',
+                    'autocapitalize' => 'off',
+                    'autocomplete' => 'off',
+                ],
             ]);
         ?>
     </div>
@@ -91,7 +101,7 @@
         <label for="form-house">Номер дома</label>
         <?php
             echo \bizley\ajaxdropdown\AjaxDropdown::widget([
-                'id' => 'house_input',
+                'id' => 'house_input' . $widget->id,
                 'model' => $widget->model,
                 'attribute' => $widget->attribute,
                 'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
@@ -100,10 +110,15 @@
                 'buttonsClass' => 'btn-default',
                 'delay' => 2000,
                 'minQuery' => 1,
-                'getAdditionalPostData' => '[{find:"house", region:$("select[name=region]").val(), city_id:$("input[name=city]").val(), street_id:$("input[name=street]").val()}]',
+                'getAdditionalPostData' => '[{find:"house", region:$("select[name=region_' . $widget->id . ']").val(), city_id:$("input[name=city_' . $widget->id . ']").val(), street_id:$("input[name=street_' . $widget->id . ']").val()}]',
                 'local' => $ajaxDropdownLocal,
                 'data' => $house,
-                //                'onSelect' => 'alert("house")',
+//                'onSelect' => 'alert("house")',
+                'inputOptions' => [
+                    'autocorrect' => 'off',
+                    'autocapitalize' => 'off',
+                    'autocomplete' => 'off',
+                ],
             ]);
         ?>
     </div>
