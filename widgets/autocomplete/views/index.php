@@ -122,4 +122,10 @@
             ]);
         ?>
     </div>
+    <?php if ($widget->additional_column) { ?>
+        <div class="form-group">
+            <label for="form-house">Дополнительно (квартира, помещение)</label>
+            <?= Html::input('text', Html::getInputName($widget->model, $widget->additional_column), $widget->model->getAttribute($widget->additional_column),['class' => 'form-control']) ?>
+        </div>
+    <?php } ?>
 </div>

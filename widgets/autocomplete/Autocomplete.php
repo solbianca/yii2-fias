@@ -26,6 +26,7 @@
 
         public $model;
         public $attribute;
+        public $additional_column;
 
         /**
          * @inherit
