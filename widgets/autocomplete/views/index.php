@@ -122,6 +122,12 @@
             ]);
         ?>
     </div>
+    <?php if ($widget->additional_house_field) { ?>
+        <div class="form-group">
+            <label for="form-house">Номер дома *(при отсутствии в списке)</label>
+            <?= Html::input('text', Html::getInputName($widget->model, $widget->additional_house_field), $widget->model->getAttribute($widget->additional_house_field),['class' => 'form-control']) ?>
+        </div>
+    <?php } ?>
     <?php if ($widget->additional_column) { ?>
         <div class="form-group">
             <label for="form-house">Дополнительно (квартира, помещение)</label>

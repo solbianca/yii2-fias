@@ -27,6 +27,7 @@
         public $model;
         public $attribute;
         public $additional_column;
+        public $additional_house_field;
 
         /**
          * @inherit
