@@ -25,7 +25,9 @@
         $region = $address['city']->region_code;
         $city = [['id' => $address['city']->address_id, 'value' => $address['city']->getFullAddress(), 'mark' => 1]];
         $street = [['id' => $address['street']->address_id, 'value' => $address['street']->getFullAddress(), 'mark' => 1]];
-        $house = [['id' => $address['house']->house_id, 'value' => $address['house']->getFullNumber(), 'mark' => 1]];
+        $house = $address['house']
+            ? [['id' => $address['house']->house_id, 'value' => $address['house']->getFullNumber(), 'mark' => 1]]
+            : [];
     }
 ?>
 

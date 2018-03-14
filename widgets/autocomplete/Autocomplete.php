@@ -38,12 +38,16 @@
         {
             $address = [];
             //если есть фиасеный адресок, то заполняем инпуты
-            if($house_id = $this->model->getAttribute($this->attribute)){
+            if($fiasID = $this->model->getAttribute($this->attribute)){
                 /** @var FiasHouse $house */
                 /** @var FiasAddressObject $street */
                 /** @var FiasAddressObject $city*/
-                $house = FiasHouse::find()->where(['house_id' => $house_id])->one();
-                $street = FiasAddressObject::find()->where(['fias_address_object.address_level' => [7, 91], 'address_id' => $house->address_id])->one();
+                $house = FiasHouse::find()->where(['house_id' => $fiasID])->one();
+                if ($house) {
+                    $street = FiasAddressObject::find()->where(['address_id' => $house->address_id, 'fias_address_object.address_level' => [7, 91]])->one();
+                } else {
+                    $street = FiasAddressObject::find()->where(['address_id' => $fiasID, 'fias_address_object.address_level' => [7, 91]])->one();
+                }
                 $city = $street->parent;
                 if ($city && $city->address_level != 4 && $city->parent && $city->parent->address_level == 4) {
                     $city = $city->parent;
