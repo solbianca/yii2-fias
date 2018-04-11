@@ -141,7 +141,7 @@ class FiasHouse extends ActiveRecord implements FiasModelInterface
      */
     public function getFullAddress()
     {
-        $address = (isset($this->address)) ? $this->getFullAddress() : $this->number;
+        $address = (isset($this->address)) ? $this->address->getFullAddress() : $this->number;
 
         if (!empty($this->building)) {
             $address .= '/' . $this->building;
