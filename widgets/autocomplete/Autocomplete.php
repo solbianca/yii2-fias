@@ -48,9 +48,13 @@
                 } else {
                     $street = FiasAddressObject::find()->where(['address_id' => $fiasID, 'fias_address_object.address_level' => [7, 91]])->one();
                 }
-                $city = $street->parent;
-                if ($city && !in_array($city->address_level, [4, 6]) && $city->parent && in_array($city->parent->address_level, [4, 6])) {
-                    $city = $city->parent;
+
+                $city = null;
+                if ($street) {
+                    $city = $street->parent;
+                    if ($city && !in_array($city->address_level, [4, 6]) && $city->parent && in_array($city->parent->address_level, [4, 6])) {
+                        $city = $city->parent;
+                    }
                 }
 
                 $address = compact(['house', 'street', 'city']);
