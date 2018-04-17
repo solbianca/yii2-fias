@@ -82,7 +82,7 @@ class SearchAddress extends Model
                 $addresses = ArrayHelper::toArray($dataProvider->getModels(), [
                     'solbianca\fias\models\FiasAddressObject' => [
                         'id' => 'address_id',
-                        'value' => 'fullAddress',
+                        'value' => 'shortTitle',
                     ]
                 ]);
                 break;

@@ -222,6 +222,11 @@ class FiasAddressObject extends ActiveRecord implements FiasModelInterface
         return implode(', ', $addresses);
     }
 
+    public function getShortAddress()
+    {
+        return $this->replaceTitle();
+    }
+
     /**
      * @return string
      */
