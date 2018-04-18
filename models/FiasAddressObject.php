@@ -222,13 +222,18 @@ class FiasAddressObject extends ActiveRecord implements FiasModelInterface
         return implode(', ', $addresses);
     }
 
+    public function getShortAddress()
+    {
+        return $this->replaceTitle();
+    }
+
     /**
      * @return string
      */
     protected function getAddressRecursive()
     {
         $address = $this->replaceTitle();
-        if (!empty($this->parent_id)) {
+        if ($this->parent) {
             $address .= ';' . $this->parent->getAddressRecursive();
         }
         return $address;

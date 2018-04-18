@@ -7,6 +7,8 @@ use solbianca\fias\models\FiasHouse;
 use yii\base\Model;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 
 class SearchAddress extends Model
 {
@@ -31,6 +33,15 @@ class SearchAddress extends Model
     public $house;
 
     /**
+     * @var string
+     */
+    public $query;
+
+    public $city_id;
+    public $parent_id;
+    public $street_id;
+
+    /**
      * Поиск по улицам и улицам на дополнительных территориях
      *
      * @var array
@@ -43,7 +54,7 @@ class SearchAddress extends Model
     public function rules()
     {
         return [
-            [['address_id', 'house', 'street'], 'string'],
+            [['address_id', 'house', 'query', 'city_id', 'street_id'], 'string'],
             [['region'], 'integer'],
         ];
     }
@@ -58,48 +69,51 @@ class SearchAddress extends Model
     }
 
     /**
-     * @param $params
      * @return array
      */
-    public function searchAddress($params)
+    public function searchAddress()
     {
-        if (!empty($params['house'])) {
-            $dataProvider = $this->searchHouse($params);
-            $models = $dataProvider->getModels();
-            if (empty($models)) {
-                return ['result' => true, 'data' => null];
-            }
+        $addresses = [];
+        switch ($find = Yii::$app->request->post('find')){
+            case 'city':
+            case 'street':
+                $dataProvider = $this->searchAddressObject(Yii::$app->request->post(), $find);
+                $dataProvider->pagination->setPage(Yii::$app->request->post('page') -1);
+                $addresses = ArrayHelper::toArray($dataProvider->getModels(), [
+                    'solbianca\fias\models\FiasAddressObject' => [
+                        'id' => 'address_id',
+                        'value' => 'shortAddress',
+                    ]
+                ]);
+                break;
+            case 'house':
+                $dataProvider = $this->searchHouse(Yii::$app->request->post());
+                $dataProvider->pagination->setPage(Yii::$app->request->post('page')  -1);
+                /** @var solbianca\fias\models\FiasHouse $addresses */
+                $addresses = ArrayHelper::toArray($dataProvider->getModels(), [
+                    'solbianca\fias\models\FiasHouse' => [
+                        'id' => 'house_id',
+                        'value' => 'fullNumber',
+                    ]
+                ]);
+                break;
 
-            foreach ($models as $model) {
-                $data[] = $model->getFullNumber();
-            }
-            return ['result' => true, 'data' => $data];
-        } elseif (!empty($params['street'])) {
-            $dataProvider = $this->searchAddressObject($params);
-            $models = $dataProvider->getModels();
-            if (empty($models)) {
-                return ['result' => true, 'data' => null];
-            }
-
-            foreach ($models as $model) {
-                $data[] = [
-                    'value' => $model->getFullAddress(),
-                    'address_id' => $model->address_id
-                ];
-            }
-            return ['result' => true, 'data' => $data];
         }
 
-        return ['result' => true, 'data' => null];
+        return [
+            'data' => $addresses,
+            'page' => $dataProvider->pagination->page + 1,
+            'total' => $dataProvider->pagination->pageCount
+        ];
     }
 
     /**
      * @param $params
      * @return ActiveDataProvider
      */
-    protected function searchAddressObject($params)
+    protected function searchAddressObject($params, $find)
     {
-        $query = FiasAddressObject::find()->where(['IN', 'address_level', $this->levels]);
+        $query = FiasAddressObject::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -111,15 +125,36 @@ class SearchAddress extends Model
             return $dataProvider;
         }
 
-        $query->andFilterWhere([
-            'region_code' => $this->region,
-        ]);
+        switch ($find){
+            case 'city':
+                $query->andWhere(['fias_address_object.address_level' => [4, 6]]);
+                break;
+            case 'street':
+                $query->andWhere(['fias_address_object.address_level' => [7, 91]]);
+                break;
+        }
+
+        $query->andFilterWhere(['like', 'fias_address_object.title', $this->query]);
 
         $query->andFilterWhere([
-            'LIKE',
-            'title',
-            $this->street
+            'fias_address_object.region_code' => $this->region,
         ]);
+
+        if($this->city_id){
+            $this->parent_id = $this->city_id;
+        }
+        if($this->street_id){
+            $this->parent_id = $this->street_id;
+        }
+
+        if($this->parent_id){
+            $query->join('left join', 'fias_address_object fa1', 'fa1.address_id = fias_address_object.parent_id');
+            $query->join('left join', 'fias_address_object fa2', 'fa2.address_id = fa1.parent_id');
+            $query->andWhere(['or',
+                ['fa1.address_id' => $this->parent_id],
+                ['fa2.address_id' => $this->parent_id],
+            ]);
+        }
 
         return $dataProvider;
     }
@@ -142,13 +177,25 @@ class SearchAddress extends Model
             return $dataProvider;
         }
 
-        $query->where(['address_id' => $this->address_id]);
+        if($this->city_id){
+            $this->parent_id = $this->city_id;
+        }
 
-        $query->andFilterWhere([
-            'LIKE',
-            FiasHouse::tableName() . '.number',
-            $this->house
-        ]);
+        if ($this->street_id){
+            $this->parent_id = $this->street_id;
+        } else {
+            $query->where('0 = 1');
+        }
+
+        if($this->parent_id){
+            $query->andWhere(['fias_house.address_id' => $this->parent_id]);
+        }
+
+        if($this->query){
+            $query->andWhere(FiasHouse::tableName() . '.number like \'' .  intval($this->query) . '%\'');
+        }
+
+        $query->groupBy('house_id');
 
         return $dataProvider;
     }

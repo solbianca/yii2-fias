@@ -1,120 +1,144 @@
 <?php
 
-use yii\widgets\ActiveForm;
-use yii\helpers\Html;
-use solbianca\fias\widgets\autocomplete\AutocompleteAsset;
+    use yii\helpers\Html;
 
-AutocompleteAsset::register($this);
+    /**
+     * @var $this yii\web\View
+     * @var $regions \solbianca\fias\models\FiasRegion[]
+     * @var $widget \solbianca\fias\widgets\autocomplete\Autocomplete
+     */
 
-/**
- * @var $this yii\web\View
- * @var $urlAddressObject string
- * @var $urlHouse string
- * @var $regions \solbianca\fias\models\FiasRegion[]
- */
+    $ajaxDropdownLocal = [
+        'allRecords'        => 'Все записи',
+        'error'             => 'Ошибка',
+        'minimumCharacters' => 'Необходимо заполнить минимум {NUM} символов',
+        'next'              => 'след.',
+        'noRecords'         => 'Записей не найдено',
+        'previous'          => 'пред.',
+        'recordsContaining' => 'Records containing',
+    ];
 
-$js = <<<EOD
-
-var autocomplete = {
-
-    'config' : {
-        'urlAddressObject': '{$urlAddressObject}',
-        'urlHouse': '{$urlHouse}',
-        'container' : $('#form-address'),
-        'streetInput': '#form-street',
-        'streetIdInput': '#form-street-id',
-        'houseInput': '#form-house',
-    },
-
-    'events': function() {
-        $(autocomplete.config.streetInput).keyup(function(event) {
-            autocomplete.getAddresses(autocomplete.config.urlAddressObject ,autocomplete.getFormData(), 'street');
-        });
-
-        $(autocomplete.config.houseInput).keyup(function(event) {
-            autocomplete.getAddresses(autocomplete.config.urlHouse, autocomplete.getFormData(), 'house');
-        });
-    },
-
-    'init' : function(config) {
-        if (config && typeof(config) == 'object') {
-            $.extend(myFeature.config, config);
+    $region = '';
+    $city = $street = $house = [];
+    $house = [];
+    if($address){
+        if ($address['house']) {
+            $house = [['id' => $address['house']->house_id, 'value' => $address['house']->getFullNumber(), 'mark' => 1]];
         }
-        autocomplete.events();
-    },
 
-    'getFormData': function() {
-        return $(autocomplete.config.container).serializeArray();
-    },
-
-    'getAddresses': function(url, formData, type) {
-        var request = $.ajax({
-            url: url,
-            method: "GET",
-            data: formData,
-            dataType: "json"
-        });
-
-        request.done(function( respond ) {
-            if (respond.result !== true) {
-                return null;
-            } else if (respond.data === null) {
-                return null;
+        if ($address['street']) {
+            $street = [['id' => $address['street']->address_id, 'value' => $address['street']->getShortAddress(), 'mark' => 1]];
+            if ($address['city']) {
+                $city = [['id' => $address['city']->address_id, 'value' => $address['city']->getShortAddress(), 'mark' => 1]];
+                $region = $address['city']->region_code;
             }
-
-            if (type === 'street') {
-                autocomplete.initStreetAutocomplete(respond.data);
-            } else if (type === 'house') {
-                autocomplete.initHouseAutocomplete(respond.data);
-            }
-        });
-
-        request.fail(function( jqXHR, textStatus ) {
-            console.log( "Что-то пошло не так." );
-        });
-    },
-
-    'initStreetAutocomplete': function(data) {
-        $(autocomplete.config.streetInput).autocomplete({
-            minLength: 3,
-            source: data,
-            select: function( event, ui ) {
-                $(autocomplete.config.streetInput).val( ui.item.value );
-                $(autocomplete.config.streetIdInput).val( ui.item.address_id );         
-                return false;
-            }
-        });
-    },
-
-    'initHouseAutocomplete': function(data) {
-        $(autocomplete.config.houseInput).autocomplete({
-            minLength: 0,
-            source: data
-        });
+        }
     }
-};
-autocomplete.init();
-EOD;
-$this->registerJs($js);
 ?>
 
-<?php $form = ActiveForm::begin([
-    'id' => 'form-address',
-]) ?>
+<div id="form-address-<?= $widget->id ?>">
 
     <div class="form-group">
         <label for="form-region">Регион</label>
-        <?= Html::dropDownList('region', 77, $regions, ['class' => 'form-control', 'if' => 'form-region']) ?>
+        <?php
+            echo \kartik\widgets\Select2::widget([
+                'language' => 'ru',
+                'name' => 'region',
+                'id' => 'region_' . $widget->id,
+                'data' => $regions,
+                'value' => $region,
+                'options' => ['placeholder' => 'Выберите регион...', 'onChange' => "$('#city_" . $widget->id . "_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ])
+        ?>
     </div>
-
+    <div class="form-group">
+        <label for="form-city">Город</label>
+        <?php
+            echo \bizley\ajaxdropdown\AjaxDropdown::widget([
+                'id' => 'city_input' . $widget->id,
+                'name' => 'city_' . $widget->id,
+                'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
+                'singleMode' => true,
+                'keyTrigger' => true,
+                'buttonsClass' => 'btn-default',
+                'delay' => 2000,
+                'minQuery' => 4,
+                'getAdditionalPostData' => '[{find:"city", region:$("select[id=region_' . $widget->id . ']").val()}]',
+                'local' => $ajaxDropdownLocal,
+                'data' => $city,
+                'onSelect' => "$('#street_" . $widget->id . "_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
+                'onRemove' => "$('#street_" . $widget->id . "_ajaxDropDownWidget .ajaxDropDownSingleRemove').click();",
+                'inputOptions' => [
+                    'autocorrect' => 'off',
+                    'autocapitalize' => 'off',
+                    'autocomplete' => 'off',
+                ],
+            ]);
+        ?>
+    </div>
     <div class="form-group">
         <label for="form-street">Улица</label>
-        <?= Html::textInput('street', null, ['class' => 'form-control address-form', 'id' => 'form-street']) ?>
-        <?= Html::hiddenInput('address_id', null, ['id' => 'form-street-id']) ?>
+        <?php
+            echo \bizley\ajaxdropdown\AjaxDropdown::widget([
+                'id' => 'street_input' . $widget->id,
+                'name' => 'street_' . $widget->id,
+                'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
+                'singleMode' => true,
+                'keyTrigger' => true,
+                'buttonsClass' => 'btn-default',
+                'delay' => 2000,
+                'minQuery' => 4,
+                'getAdditionalPostData' => '[{find:"street", region:$("select[id=region_' . $widget->id . ']").val(), city_id:$("input[name=city_' . $widget->id . ']").val()}]',
+                'local' => $ajaxDropdownLocal,
+                'data' => $street,
+                'onSelect' => "$('#" . Html::getInputId($widget->model,$widget->attribute) . '_ajaxDropDownWidget' . " .ajaxDropDownSingleRemove').click();",
+                'onRemove' => "$('#" . Html::getInputId($widget->model,$widget->attribute) . '_ajaxDropDownWidget' . " .ajaxDropDownSingleRemove').click();",
+                'inputOptions' => [
+                    'autocorrect' => 'off',
+                    'autocapitalize' => 'off',
+                    'autocomplete' => 'off',
+                ],
+            ]);
+        ?>
     </div>
     <div class="form-group">
         <label for="form-house">Номер дома</label>
-        <?= Html::textInput('house', null, ['class' => 'form-control address-form', 'id' => 'form-house']) ?>
+        <?php
+            echo \bizley\ajaxdropdown\AjaxDropdown::widget([
+                'id' => 'house_input' . $widget->id,
+                'model' => $widget->model,
+                'attribute' => $widget->attribute,
+                'source' => \yii\helpers\Url::to('/fias/search/autocomplete'),
+                'singleMode' => true,
+                'keyTrigger' => true,
+                'buttonsClass' => 'btn-default',
+                'delay' => 2000,
+                'minQuery' => 1,
+                'getAdditionalPostData' => '[{find:"house", region:$("select[id=region_' . $widget->id . ']").val(), city_id:$("input[name=city_' . $widget->id . ']").val(), street_id:$("input[name=street_' . $widget->id . ']").val()}]',
+                'local' => $ajaxDropdownLocal,
+                'data' => $house,
+//                'onSelect' => 'alert("house")',
+                'inputOptions' => [
+                    'autocorrect' => 'off',
+                    'autocapitalize' => 'off',
+                    'autocomplete' => 'off',
+                ],
+            ]);
+        ?>
     </div>
-
-<?php ActiveForm::end() ?>
+    <?php if ($widget->additional_house_field) { ?>
+        <div class="form-group">
+            <label for="form-house">Номер дома *(при отсутствии в списке)</label>
+            <?= Html::input('text', Html::getInputName($widget->model, $widget->additional_house_field), $widget->model->getAttribute($widget->additional_house_field),['class' => 'form-control']) ?>
+        </div>
+    <?php } ?>
+    <?php if ($widget->additional_column) { ?>
+        <div class="form-group">
+            <label for="form-house">Дополнительно (квартира, помещение)</label>
+            <?= Html::input('text', Html::getInputName($widget->model, $widget->additional_column), $widget->model->getAttribute($widget->additional_column),['class' => 'form-control']) ?>
+        </div>
+    <?php } ?>
+</div>
