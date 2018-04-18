@@ -27,9 +27,9 @@
         }
 
         if ($address['street']) {
-            $street = [['id' => $address['street']->address_id, 'value' => $address['street']->getFullAddress(), 'mark' => 1]];
+            $street = [['id' => $address['street']->address_id, 'value' => $address['street']->getShortAddress(), 'mark' => 1]];
             if ($address['city']) {
-                $city = [['id' => $address['city']->address_id, 'value' => $address['city']->getFullAddress(), 'mark' => 1]];
+                $city = [['id' => $address['city']->address_id, 'value' => $address['city']->getShortAddress(), 'mark' => 1]];
                 $region = $address['city']->region_code;
             }
         }
